@@ -19,41 +19,28 @@
 ## English
 
 ### What is UmbraGram?
-**UmbraGram** is a desktop workstation that allows you to chat with people through a Telegram bot without ever revealing your personal phone number, real identity, IP address, or unique writing style. 
-
-Instead of messaging from a personal account, you connect your Telegram bot token to UmbraGram. When users send messages to your bot, they appear in your desktop client just like a normal chat app, and you can reply to them in real time behind a multi-layered shield of anonymity.
-
-```
-[Other Users] ──(Telegram App)──► [Your Bot] ──(Tor / SOCKS5)──► [UmbraGram Desktop Client (You)]
-```
+UmbraGram is a security-hardened desktop messaging client that allows you to chat with people through a Telegram bot without ever revealing your personal phone number, real identity, IP address, or unique writing habits.
 
 ---
 
-### How It Works (Under the Hood)
+### How It Works
 
-1. **Bot-Mediated Conversations:**
-   * You create or use a Telegram bot token. Users only see and talk to the bot. Your personal Telegram account, contact list, and phone number are never involved or exposed.
-2. **Network Shield (Tor & Proxy):**
-   * All polling and message dispatches pass through an isolated Tor SOCKS5 circuit (`127.0.0.1:9050`) or elite proxy.
-   * If the connection fails, an automatic **Kill-Switch** halts all outbound traffic in under 0.1ms to prevent real IP leaks.
-   * Random millisecond delays (**Jitter**) are injected into outgoing packets to defeat network timing correlation attacks.
-3. **Linguistic Stylometry Neutralizer:**
-   * Before you send a message, the built-in `🪄` neutralizer cleans your typing habits: slang, profanity, dialectal spellings, and repeated characters (`selaaamm` $\to$ `selam`) are standardized so your writing style cannot be forensically profiled.
-4. **Metadata Stripping:**
-   * Photos, documents, and audio files sent through the bot have their EXIF, GPS location coordinates, camera models, and author tags automatically wiped.
-5. **Hardware-Aware Data Destruction:**
-   * When messages are deleted or the emergency wipe shortcut (`Ctrl+Alt+Shift+X`) is triggered, UmbraGram executes DoD multi-pass overwrites for HDDs and Crypto-shredding + TRIM deallocation for NVMe/SSDs.
+* **Conversations Through Your Bot:** Instead of chatting from a personal Telegram account, you connect your Telegram bot token to UmbraGram. Other people message your bot directly from their standard Telegram app. Their messages instantly appear in your desktop client, allowing you to reply in real time as the bot. Users only see and interact with your bot; your personal account, phone number, and contacts remain completely unexposed.
+* **Network & IP Protection:** All data transfer between your computer and Telegram's servers is routed through an isolated Tor SOCKS5 circuit (`127.0.0.1:9050`) or an elite proxy. If the secure tunnel drops, an automated Kill-Switch instantly freezes outgoing network traffic in less than 0.1 milliseconds, ensuring your real home or office IP address is never leaked. Additionally, random millisecond delays (Jitter) are applied to outbound packets to defeat timing correlation tracking by internet service providers.
+* **Writing Style & Identity Scrubbing:** When you type a message, the built-in neutralizer (`Ctrl+Shift+N`) standardizes your text before it is sent. It removes distinctive slang, profanities, texting abbreviations, and vowel elongations (converting phrases like `selaaamm` to `selam`) so your personal writing habits cannot be forensically profiled.
+* **Automatic File & Photo Cleaning:** When you send images, documents, or audio files through the bot, the client automatically wipes all embedded EXIF tags, GPS location coordinates, camera models, and author metadata.
+* **Hardware-Aware Data Destruction:** When a conversation is deleted or the emergency wipe shortcut (`Ctrl+Alt+Shift+X`) is pressed, UmbraGram checks your physical drive type: it runs cryptographic key shredding and TRIM deallocation on NVMe/SSDs to prevent Flash Translation Layer remnants, and multi-pass magnetic overwriting (DoD 5220.22-M) on magnetic HDDs.
 
 ---
 
 ### Key Features
 
-* **🤖 Bot-Based Workstation:** Chat with multiple people through your bot tokens in a familiar, modern desktop interface.
-* **🛡️ Tor & Proxy Shield:** SOCKS5 tunneling, automated local Tor process management, and fail-closed kill-switch.
-* **🧹 Text Neutralizer:** Rule-based Turkish stylometry engine removing personal writing signatures.
-* **📷 Media Sanitizer:** Strips GPS, camera metadata, and document author headers before upload.
-* **💽 Hardware-Aware Shredder:** Differentiated forensic sanitization for SSD and HDD drives.
-* **⚡ Multi-Bot Engine:** Concurrently manage multiple bot tokens with built-in anti-spam flood protection.
+* **Bot-Based Workstation:** Chat with multiple people through your bot tokens in a familiar, modern desktop interface.
+* **Tor & Proxy Shield:** SOCKS5 tunneling, automated local Tor process management, and fail-closed kill-switch.
+* **Text Neutralizer:** Rule-based Turkish stylometry engine removing personal writing signatures.
+* **Media Sanitizer:** Strips GPS, camera metadata, and document author headers before upload.
+* **Hardware-Aware Shredder:** Differentiated forensic sanitization for SSD and HDD drives.
+* **Multi-Bot Engine:** Concurrently manage multiple bot tokens with built-in anti-spam flood protection.
 
 ---
 
@@ -97,41 +84,28 @@ pytest tests/ -v
 ## Türkçe
 
 ### UmbraGram Nedir?
-**UmbraGram**, kişisel telefon numaranızı, gerçek kimliğinizi, IP adresinizi veya yazım tarzınızı açık etmeden **bir Telegram botu üzerinden insanlarla sohbet etmenizi sağlayan** masaüstü bir mesajlaşma istemcisidir.
-
-Kişisel bir hesaptan yazışmak yerine, oluşturduğunuz botun belirtecini (token) UmbraGram'a eklersiniz. İnsanlar botunuza mesaj attığında, bu mesajlar tıpkı normal bir sohbet programı gibi masaüstü ekranınıza düşer. Siz de karşı tarafa botun arkasından canlı olarak yanıt verirsiniz.
-
-```
-[Diğer Kullanıcılar] ──(Telegram)──► [Botunuz] ──(Tor / SOCKS5 Kalkanı)──► [UmbraGram Masaüstü (Siz)]
-```
+UmbraGram, kişisel telefon numaranızı, gerçek kimliğinizi, IP adresinizi veya yazım tarzınızı açık etmeden bir Telegram botu üzerinden insanlarla sohbet etmenizi sağlayan masaüstü bir mesajlaşma istemcisidir.
 
 ---
 
-### Nasıl Çalışır? (Adım Adım)
+### Nasıl Çalışır?
 
-1. **Bot Aracılığıyla Sohbet:**
-   * Karşıdaki kişi sadece botu görür ve botla konuşur. Kişisel Telegram profiliniz, rehberiniz ve telefon numaranız hiçbir şekilde devreye girmez.
-2. **Ağ Kalkanı (Tor & Proxy):**
-   * Botun tüm veri trafiği izole bir Tor SOCKS5 devresi (`127.0.0.1:9050`) veya proxy üzerinden akar.
-   * Bağlantı aniden kopsa bile **Kill-Switch** sistemi 0.1 milisaniyeden kısa sürede trafiği dondurarak gerçek ev/iş IP adresinizin sızmasını engeller.
-   * Çıkış yapan mesajlara milisaniye seviyesinde rastgele gecikmeler (**Jitter**) eklenerek İSS düzeyindeki zaman eşleştirme analizleri bozulur.
-3. **Üslup ve Yazı Stili Temizliği (Stilometri):**
-   * Mesaj yazarken `🪄` butonuna (`Ctrl+Shift+N`) bastığınızda; kullandığınız argo kelimeler, konuşma dili kısaltmaları ve harf uzatmaları (`selaaam` $\to$ `selam`) standart resmi Türkçeye dönüştürülür. Böylece yazım tarzınızdan kimlik tespiti yapılamaz.
-4. **Görsel ve Dosya Metaveri Temizliği:**
-   * Gönderdiğiniz fotoğraflardaki GPS konumları, çekim saati, kamera modeli ve PDF yazar bilgileri otomatik olarak silinir.
-5. **Donanıma Duyarlı Adli İmha:**
-   * Bir sohbet silindiğinde veya acil imha kısayolu (`Ctrl+Alt+Shift+X`) tetiklendiğinde; SSD'lerde Crypto-shredding ve TRIM, HDD'lerde ise 3 geçişli manyetik üzerine yazma (DoD) ile diskteki kalıntılar sıfırlanır.
+* **Bot Aracılığıyla Sohbet:** Kişisel bir Telegram hesabından yazışmak yerine, oluşturduğunuz botun belirtecini (token) UmbraGram'a eklersiniz. Karşıdaki kişiler normal Telegram uygulamalarından botunuza mesaj yazar. Gelen mesajlar doğrudan masaüstü ekranınızdaki sohbet penceresine düşer ve siz de karşı tarafa botun arkasından canlı olarak yanıt verirsiniz. Karşı taraf yalnızca botla konuştuğunu görür; kişisel profiliniz, telefon numaranız veya rehberiniz hiçbir şekilde paylaşılmaz.
+* **Ağ ve IP Koruması:** Bilgisayarınız ile Telegram sunucuları arasındaki tüm iletişim izole bir Tor SOCKS5 devresi (`127.0.0.1:9050`) veya proxy üzerinden yürütülür. Güvenli bağlantı kopsa dahi acil durum şalteri (Kill-Switch) milisaniyenin altında bir sürede tüm giden trafiği dondurarak gerçek IP adresinizin dışarı sızmasını kesin olarak engeller. Ayrıca giden paketlere eklenen mikro gecikmeler (Jitter) sayesinde internet servis sağlayıcısının zaman analizi yapması zorlaştırılır.
+* **Üslup ve Yazı Stili Temizliği:** Mesajınızı yazıp göndermeden önce nötralizasyon motoru (`Ctrl+Shift+N`) kişisel yazım alışkanlıklarınızı temizler. Argo ifadeler, sokak jargonu, mesajlaşma kısaltmaları ve harf uzatmaları (örneğin `selaaamm` yerine `selam`) standart resmi dile dönüştürülür; böylece yazım üslubunuz üzerinden kimlik tespiti yapılamaz.
+* **Görsel ve Dosya Metaveri Temizliği:** Bot üzerinden fotoğraf, PDF veya ses dosyası gönderdiğinizde, dosyanın içine gizlenmiş GPS konum koordinatları, kamera modeli, çekim saati ve yazar bilgileri otomatik olarak silinir.
+* **Donanıma Duyarlı Adli İmha:** Bir sohbet silindiğinde veya acil imha kısayolu (`Ctrl+Alt+Shift+X`) tetiklendiğinde depolama türü denetlenir: NVMe/SSD sürücülerde şifreleme anahtarları imha edilip TRIM komutu tetiklenerek veri kalıntıları engellenir, manyetik HDD'lerde ise 3 geçişli manyetik üzerine yazma (DoD) uygulanır.
 
 ---
 
 ### Temel Özellikler
 
-* **🤖 Bot Tabanlı İletişim:** Bot tokeni ile bağlanıp insanlarla normal bir Telegram uygulaması gibi birebir yazışma.
-* **🛡️ Tor & Proxy Kalkanı:** SOCKS5 tünellemesi, otomatik Tor yönetimi ve sızıntı önleyici Kill-Switch.
-* **🧹 Metin Nötralizasyonu:** Kişiye özgü konuşma tarzını, argo ve kısaltmaları silen Türkçe stilometri motoru.
-* **📷 Medya Temizleyici:** Fotoğraf ve belgelerden konum/kamera metaverilerini kaldırma.
-* **💽 Donanıma Duyarlı İmha:** SSD ve HDD sürücüler için adli bilişime karşı özel imha algoritmaları.
-* **⚡ Çoklu Bot Yönetimi:** Birden fazla botu aynı anda yönetme ve otomatik spam/sel engelleme.
+* **Bot Tabanlı İletişim:** Bot tokeni ile bağlanıp insanlarla normal bir Telegram uygulaması gibi birebir yazışma.
+* **Tor & Proxy Kalkanı:** SOCKS5 tünellemesi, otomatik Tor yönetimi ve sızıntı önleyici Kill-Switch.
+* **Metin Nötralizasyonu:** Kişiye özgü konuşma tarzını, argo ve kısaltmaları silen Türkçe stilometri motoru.
+* **Medya Temizleyici:** Fotoğraf ve belgelerden konum/kamera metaverilerini kaldırma.
+* **Donanıma Duyarlı İmha:** SSD ve HDD sürücüler için adli bilişime karşı özel imha algoritmaları.
+* **Çoklu Bot Yönetimi:** Birden fazla botu aynı anda yönetme ve otomatik spam/sel engelleme.
 
 ---
 
