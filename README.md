@@ -18,54 +18,42 @@
 <a name="english"></a>
 ## English
 
-**UmbraGram** is a security-hardened, privacy-centric desktop Telegram bot workstation built with Python and PyQt6. Designed for operational privacy, network traffic obfuscation, and anti-forensics, it combines network layer isolation with hardware-aware data sanitization and linguistic stylometry defense.
+### What is UmbraGram?
+**UmbraGram** is a desktop workstation that allows you to chat with people through a Telegram bot without ever revealing your personal phone number, real identity, IP address, or unique writing style. 
+
+Instead of messaging from a personal account, you connect your Telegram bot token to UmbraGram. When users send messages to your bot, they appear in your desktop client just like a normal chat app, and you can reply to them in real time behind a multi-layered shield of anonymity.
+
+```
+[Other Users] ──(Telegram App)──► [Your Bot] ──(Tor / SOCKS5)──► [UmbraGram Desktop Client (You)]
+```
 
 ---
 
-### How It Works (Architecture & Data Flow)
+### How It Works (Under the Hood)
 
-```
-[User Input] ──► [TextNeutralizer (Stylometry)] ──► [Metadata Stripper (EXIF/GPS Clean)]
-                                                              │
-                                                              ▼
-[Encrypted SQLite Vault] ◄── [SendActionWorker] ◄── [Packet Jitter (CSPRNG Delay)]
-                                                              │
-                                                              ▼
-                                               [Tor / Proxy Circuit (SOCKS5)]
-                                                              │
-                                                      (Kill-Switch Guard)
-                                                              │
-                                                              ▼
-                                                   [Telegram Bot API]
-```
-
-1. **Vault Initialization & Master Password:**
-   * Upon startup, the user defines or enters a master password.
-   * Key derivation initializes the local SQLite database in thread-safe Write-Ahead Logging (`WAL`) mode with cryptographic isolation.
-
-2. **Network Shield & Traffic Obfuscation:**
-   * **Tor & Proxy Chaining:** Automatically detects local `tor.exe` instances, executes them headlessly, and establishes an isolated SOCKS5 circuit on `127.0.0.1:9050` or dynamic elite proxy pool.
-   * **Fail-Closed Kill Switch:** If the proxy tunnel or Tor circuit drops, all outbound worker threads are frozen in sub-millisecond time (<0.1ms), ensuring 0 bytes leak over the physical network interface.
-   * **Timing Jitter:** Every outbound packet receives a non-deterministic, cryptographically randomized delay (`CSPRNG`) between configured thresholds to defeat ISP-level traffic timing correlation attacks.
-
-3. **Message Preparation & Linguistic Stylometry Defense:**
-   * **Stylometric Neutralization:** Before dispatching, messages pass through `TextNeutralizer`. It eliminates colloquialisms, texting abbreviations, vowel elongations (`selaaamm` $\to$ `selam`), vocative slang, profanity, and idiosyncratic casing while preserving URLs and emojis.
-   * **Media De-identification:** Outgoing images, PDFs, and audio files are stripped of camera models, GPS coordinates, author tags, and software metadata before leaving the workstation.
-
-4. **Hardware-Aware Forensic Sanitization:**
-   * When data is removed or the emergency wipe shortcut (`Ctrl+Alt+Shift+X`) is triggered, the storage controller type is queried:
-     * **NVMe / SSD:** Crypto-shredding destroys decryption keys first, followed by single-pass high-entropy overwrite and zero-byte truncation (`truncate(0)`) to signal OS-level TRIM deallocation, neutralizing Flash Translation Layer (FTL) wear-leveling remnants.
-     * **Magnetic HDD:** Executes 3-pass DoD 5220.22-M overwrite patterns combined with hardware cache flushes (`os.fsync`).
+1. **Bot-Mediated Conversations:**
+   * You create or use a Telegram bot token. Users only see and talk to the bot. Your personal Telegram account, contact list, and phone number are never involved or exposed.
+2. **Network Shield (Tor & Proxy):**
+   * All polling and message dispatches pass through an isolated Tor SOCKS5 circuit (`127.0.0.1:9050`) or elite proxy.
+   * If the connection fails, an automatic **Kill-Switch** halts all outbound traffic in under 0.1ms to prevent real IP leaks.
+   * Random millisecond delays (**Jitter**) are injected into outgoing packets to defeat network timing correlation attacks.
+3. **Linguistic Stylometry Neutralizer:**
+   * Before you send a message, the built-in `🪄` neutralizer cleans your typing habits: slang, profanity, dialectal spellings, and repeated characters (`selaaamm` $\to$ `selam`) are standardized so your writing style cannot be forensically profiled.
+4. **Metadata Stripping:**
+   * Photos, documents, and audio files sent through the bot have their EXIF, GPS location coordinates, camera models, and author tags automatically wiped.
+5. **Hardware-Aware Data Destruction:**
+   * When messages are deleted or the emergency wipe shortcut (`Ctrl+Alt+Shift+X`) is triggered, UmbraGram executes DoD multi-pass overwrites for HDDs and Crypto-shredding + TRIM deallocation for NVMe/SSDs.
 
 ---
 
 ### Key Features
 
-* **🛡️ Network Shield:** Tor Onion routing, dynamic proxy pooling, sub-millisecond kill-switch, and CSPRNG packet jitter.
-* **🧹 Text Neutralizer:** Rule-based linguistic stylometry defense stripping distinctive personal writing traits.
-* **💽 Hardware-Aware Shredder:** Differentiated SSD TRIM and HDD DoD magnetic forensic destruction.
-* **📷 Media Sanitizer:** Automated removal of EXIF, GPS, camera, and document metadata.
-* **⚡ Multi-Bot Engine:** Multi-token concurrent polling with sliding-window anti-spam and flood rate-limiting.
+* **🤖 Bot-Based Workstation:** Chat with multiple people through your bot tokens in a familiar, modern desktop interface.
+* **🛡️ Tor & Proxy Shield:** SOCKS5 tunneling, automated local Tor process management, and fail-closed kill-switch.
+* **🧹 Text Neutralizer:** Rule-based Turkish stylometry engine removing personal writing signatures.
+* **📷 Media Sanitizer:** Strips GPS, camera metadata, and document author headers before upload.
+* **💽 Hardware-Aware Shredder:** Differentiated forensic sanitization for SSD and HDD drives.
+* **⚡ Multi-Bot Engine:** Concurrently manage multiple bot tokens with built-in anti-spam flood protection.
 
 ---
 
@@ -77,28 +65,20 @@
    cd UmbraGram
    ```
 
-2. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run the application:**
+3. **Run the application:**
    ```bash
    python main.py
    ```
-   *(Or download the standalone `UmbraGram.exe` from [Releases](https://github.com/CyberTarkan/UmbraGram/releases))*
+   *(Or download the pre-compiled `UmbraGram.exe` from [Releases](https://github.com/CyberTarkan/UmbraGram/releases))*
 
 ---
 
 ### Running Tests
-
-UmbraGram includes an automated test suite verifying network resilience, stylometry, SQLite WAL concurrency, and UI flows:
 
 ```bash
 pytest tests/ -v
@@ -109,61 +89,49 @@ pytest tests/ -v
 ### Disclaimer & Terms of Use
 
 > [!WARNING]
-> This software is provided strictly for educational, defensive research, and authorized security auditing purposes. The developers and contributors accept **no responsibility or liability** for any direct or indirect damage, misuse, illegal activities, or violations of third-party Terms of Service resulting from the use of this software. Users are solely responsible for ensuring compliance with applicable laws.
+> This software is provided strictly for educational, defensive research, and authorized security auditing purposes. The developers and contributors accept **no responsibility or liability** for any misuse, illegal activities, or violations of third-party Terms of Service resulting from the use of this software.
 
 ---
 
 <a name="türkçe"></a>
 ## Türkçe
 
-**UmbraGram**, Python ve PyQt6 ile geliştirilmiş, güvenlik ve mahremiyet odaklı masaüstü Telegram bot istemcisidir. Operasyonel gizlilik, ağ trafiğini gizleme ve adli bilişime karşı koyma (anti-forensics) araştırmaları için tasarlanmış olup; ağ katmanı izolasyonunu, donanıma duyarlı veri imhasını ve dilbilimsel stilometri (üslup) savunmasını tek çatı altında birleştirir.
+### UmbraGram Nedir?
+**UmbraGram**, kişisel telefon numaranızı, gerçek kimliğinizi, IP adresinizi veya yazım tarzınızı açık etmeden **bir Telegram botu üzerinden insanlarla sohbet etmenizi sağlayan** masaüstü bir mesajlaşma istemcisidir.
+
+Kişisel bir hesaptan yazışmak yerine, oluşturduğunuz botun belirtecini (token) UmbraGram'a eklersiniz. İnsanlar botunuza mesaj attığında, bu mesajlar tıpkı normal bir sohbet programı gibi masaüstü ekranınıza düşer. Siz de karşı tarafa botun arkasından canlı olarak yanıt verirsiniz.
+
+```
+[Diğer Kullanıcılar] ──(Telegram)──► [Botunuz] ──(Tor / SOCKS5 Kalkanı)──► [UmbraGram Masaüstü (Siz)]
+```
 
 ---
 
-### Çalışma Mantığı (Mimari ve Veri Akışı)
+### Nasıl Çalışır? (Adım Adım)
 
-```
-[Kullanıcı Girişi] ──► [Metin Nötralizasyonu (Stilometri)] ──► [Metaveri Temizliği (EXIF/GPS Silme)]
-                                                                          │
-                                                                          ▼
-[Şifreli SQLite Kasası] ◄── [SendActionWorker] ◄── [Paket Jitter'ı (CSPRNG Gecikme)]
-                                                                          │
-                                                                          ▼
-                                                       [Tor / Proxy Devresi (SOCKS5)]
-                                                                          │
-                                                                  (Kill-Switch Kalkanı)
-                                                                          │
-                                                                          ▼
-                                                               [Telegram Bot API]
-```
-
-1. **Kasa Başlatma ve Ana Şifre:**
-   * Program açıldığında ana şifre girilir.
-   * Şifreleme anahtarı türetilerek yerel SQLite veritabanı eşzamanlı çalışmaya uygun Write-Ahead Logging (`WAL`) modunda güvenle açılır.
-
-2. **Ağ Kalkanı ve Trafik Gizleme:**
-   * **Tor & Proxy Tünellemesi:** Sistemdeki `tor.exe` dosyasını otomatik tespit eder ve arka planda sessizce başlatarak `127.0.0.1:9050` üzerinden izole SOCKS5 devresi veya dinamik proxy havuzu kurar.
-   * **Acil Şalter (Kill-Switch):** Tünel veya Tor bağlantısı koptuğunda, tüm veri çıkış iş parçacıkları milisaniyenin altında (<0.1ms) dondurulur; fiziksel internet kartından dışarı **0 bayt** veri sızması garanti edilir.
-   * **Zaman Analizi Bozucu (Jitter):** Çıkış yapan her pakete işletim sistemi seviyesinde kriptografik rastgelelikle (`CSPRNG`) gecikme eklenir; böylece servis sağlayıcı düzeyindeki zaman korelasyonu (Timing Attack) analizleri bozulur.
-
-3. **Mesaj Hazırlığı ve Dilbilimsel Stilometri Savunması:**
-   * **Üslup Temizliği:** Gönderilen mesajlar `TextNeutralizer` motorundan geçer. Sokak dili, mesajlaşma kısaltmaları, harf uzatmaları (`selaaamm` $\to$ `selam`), hitaplar ve küfürler resmi/tarafsız Türkçeye dönüştürülürken URL ve emojiler korunur.
-   * **Medya Metaveri Temizliği:** Fotoğraflardaki EXIF, GPS konumları, kamera modelleri ve PDF yazar bilgileri giden dosyadan fiziksel olarak kazınır.
-
-4. **Donanıma Duyarlı Adli Veri İmhası:**
-   * Bir veri silindiğinde veya acil imha kısayolu (`Ctrl+Alt+Shift+X`) tetiklendiğinde depolama türü sorgulanır:
-     * **NVMe / SSD:** Flash belleğin Aşınma Dengeleme (Wear-Leveling) yapısına karşı önce şifreleme anahtarları silinir (Crypto-shredding), ardından tek geçiş yüksek entropili yazma ve sıfır bayt kırpma (`truncate(0)`) ile işletim sistemine TRIM sinyali gönderilir.
-     * **Manyetik HDD:** Fiziksel sektörlerdeki manyetik izleri sıfırlamak için 3 geçişli DoD 5220.22-M deseni ve donanımsal önbellek boşaltma (`os.fsync`) uygulanır.
+1. **Bot Aracılığıyla Sohbet:**
+   * Karşıdaki kişi sadece botu görür ve botla konuşur. Kişisel Telegram profiliniz, rehberiniz ve telefon numaranız hiçbir şekilde devreye girmez.
+2. **Ağ Kalkanı (Tor & Proxy):**
+   * Botun tüm veri trafiği izole bir Tor SOCKS5 devresi (`127.0.0.1:9050`) veya proxy üzerinden akar.
+   * Bağlantı aniden kopsa bile **Kill-Switch** sistemi 0.1 milisaniyeden kısa sürede trafiği dondurarak gerçek ev/iş IP adresinizin sızmasını engeller.
+   * Çıkış yapan mesajlara milisaniye seviyesinde rastgele gecikmeler (**Jitter**) eklenerek İSS düzeyindeki zaman eşleştirme analizleri bozulur.
+3. **Üslup ve Yazı Stili Temizliği (Stilometri):**
+   * Mesaj yazarken `🪄` butonuna (`Ctrl+Shift+N`) bastığınızda; kullandığınız argo kelimeler, konuşma dili kısaltmaları ve harf uzatmaları (`selaaam` $\to$ `selam`) standart resmi Türkçeye dönüştürülür. Böylece yazım tarzınızdan kimlik tespiti yapılamaz.
+4. **Görsel ve Dosya Metaveri Temizliği:**
+   * Gönderdiğiniz fotoğraflardaki GPS konumları, çekim saati, kamera modeli ve PDF yazar bilgileri otomatik olarak silinir.
+5. **Donanıma Duyarlı Adli İmha:**
+   * Bir sohbet silindiğinde veya acil imha kısayolu (`Ctrl+Alt+Shift+X`) tetiklendiğinde; SSD'lerde Crypto-shredding ve TRIM, HDD'lerde ise 3 geçişli manyetik üzerine yazma (DoD) ile diskteki kalıntılar sıfırlanır.
 
 ---
 
 ### Temel Özellikler
 
-* **🛡️ Ağ Kalkanı:** Tor Onion yönlendirmesi, dinamik proxy havuzu, kill-switch ve CSPRNG paket geciktirme.
-* **🧹 Metin Nötralizasyonu:** Kişiye özgü yazım alışkanlıklarını silen kural tabanlı stilometri motoru.
-* **💽 Donanıma Duyarlı İmha:** SSD TRIM ve HDD DoD adli imha motoru.
-* **📷 Medya Temizleyici:** Fotoğraf, PDF ve ses dosyalarından metaveri arındırma.
-* **⚡ Çoklu Bot Motoru:** Çok iş parçacıklı bot polling'i, kayan pencereli spam ve sel koruması.
+* **🤖 Bot Tabanlı İletişim:** Bot tokeni ile bağlanıp insanlarla normal bir Telegram uygulaması gibi birebir yazışma.
+* **🛡️ Tor & Proxy Kalkanı:** SOCKS5 tünellemesi, otomatik Tor yönetimi ve sızıntı önleyici Kill-Switch.
+* **🧹 Metin Nötralizasyonu:** Kişiye özgü konuşma tarzını, argo ve kısaltmaları silen Türkçe stilometri motoru.
+* **📷 Medya Temizleyici:** Fotoğraf ve belgelerden konum/kamera metaverilerini kaldırma.
+* **💽 Donanıma Duyarlı İmha:** SSD ve HDD sürücüler için adli bilişime karşı özel imha algoritmaları.
+* **⚡ Çoklu Bot Yönetimi:** Birden fazla botu aynı anda yönetme ve otomatik spam/sel engelleme.
 
 ---
 
@@ -175,18 +143,12 @@ pytest tests/ -v
    cd UmbraGram
    ```
 
-2. **Sanal ortam oluşturun ve aktif edin:**
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate
-   ```
-
-3. **Bağımlılıkları yükleyin:**
+2. **Bağımlılıkları yükleyin:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Uygulamayı başlatın:**
+3. **Uygulamayı başlatın:**
    ```bash
    python main.py
    ```
@@ -195,8 +157,6 @@ pytest tests/ -v
 ---
 
 ### Testleri Çalıştırma
-
-Projede ağ güvenliği, adli imha, SQLite eşzamanlılığı ve arayüz akışlarını denetleyen 305 adet otomatik test bulunur:
 
 ```bash
 pytest tests/ -v
@@ -207,7 +167,7 @@ pytest tests/ -v
 ### Hukuki Sorumluluk Reddi
 
 > [!WARNING]
-> Bu yazılım yalnızca eğitim, akademik araştırma ve yetkili güvenlik denetimi amaçlarıyla geliştirilmiştir. Yazılımın geliştiricileri ve katkıda bulunanlar; bu aracın kötüye kullanımından veya üçüncü taraf hizmet şartlarının ihlal edilmesinden kaynaklanabilecek doğrudan veya dolaylı hiçbir hukuki veya cezai **sorumluluk kabul etmez**. Kullanıcı, gerçekleştirdiği eylemlerden tamamen kendisi sorumludur.
+> Bu yazılım yalnızca eğitim, akademik araştırma ve yetkili güvenlik denetimi amaçlarıyla geliştirilmiştir. Yazılımın geliştiricileri ve katkıda bulunanlar; bu aracın kötüye kullanımından veya üçüncü taraf hizmet şartlarının ihlal edilmesinden kaynaklanabilecek doğrudan veya dolaylı hiçbir hukuki veya cezai **sorumluluk kabul etmez**.
 
 ---
 
