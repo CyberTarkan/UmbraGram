@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 import requests
 from pathlib import Path
 from PyQt6.QtCore import QThread, pyqtSignal, QObject, QRunnable, QThreadPool
@@ -32,6 +33,7 @@ class SendActionWorker(QRunnable):
             except ConnectionAbortedError as e:
                 if self.callback:
                     self.callback(False, {}, str(e))
+                return
         url = f"https://api.telegram.org/bot{self.token}/{self.action}"
         file_handles = {}
         try:
@@ -56,6 +58,11 @@ class SendActionWorker(QRunnable):
                 err = data.get("description", "Bilinmeyen hata")
                 if self.callback:
                     self.callback(False, {}, err)
+        except requests.exceptions.ProxyError as e:
+            if self.network_manager and self.network_manager.kill_switch:
+                self.network_manager.trigger_kill_switch(f"Proxy bağlantısı koptu: {e}")
+            if self.callback:
+                self.callback(False, {}, f"Kill-Switch devrede (Proxy koptu): {str(e)}")
         except Exception as e:
             if self.callback:
                 self.callback(False, {}, str(e))
@@ -157,15 +164,17 @@ def strip_media_metadata(file_path: str) -> str:
         ext = Path(file_path).suffix.lower()
         clean_dir = DOWNLOADS_DIR / "temp"
         clean_dir.mkdir(parents=True, exist_ok=True)
-        clean_path = clean_dir / f"clean_{int(time.time()*1000)}{ext}"
+        clean_path = clean_dir / f"clean_{int(time.time()*1000)}_{uuid.uuid4().hex[:8]}{ext}"
 
-        # 1. Images (EXIF, GPS, Camera Model, Software)
+        # 1. Images (EXIF, GPS, Camera Model, Software, Timestamps)
         if ext in ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff'):
             from PIL import Image
             with Image.open(file_path) as img:
                 if ext in ('.jpg', '.jpeg') and img.mode in ('RGBA', 'LA', 'P'):
                     img = img.convert('RGB')
                 clean_img = Image.new(img.mode, img.size)
+                if img.mode == 'P' and img.getpalette():
+                    clean_img.putpalette(img.getpalette())
                 clean_img.paste(img)
                 clean_img.save(clean_path)
                 return str(clean_path.resolve())
@@ -177,19 +186,34 @@ def strip_media_metadata(file_path: str) -> str:
             writer = PdfWriter()
             for page in reader.pages:
                 writer.add_page(page)
+            # Thoroughly clear internal PDF dictionary including library fingerprints
+            if hasattr(writer, '_info') and writer._info:
+                try:
+                    writer._info.get_object().clear()
+                except Exception:
+                    pass
             with open(clean_path, "wb") as f:
                 writer.write(f)
             return str(clean_path.resolve())
 
-        # 3. MP3 Audio (ID3v1 and ID3v2 tags: Artist, Album, Title, Device encoder)
+        # 3. MP3 Audio (ID3v1 and ID3v2 tags: Artist, Album, Title, Device encoder, APE tags)
         elif ext == '.mp3':
             with open(file_path, "rb") as f:
                 data = f.read()
-            if len(data) >= 10 and data[:3] == b'ID3':
+            # Strip multiple ID3v2 tags and handle footer flag
+            while len(data) >= 10 and data[:3] == b'ID3':
+                flags = data[5]
+                has_footer = bool(flags & 0x10)
                 size = ((data[6] & 0x7f) << 21) | ((data[7] & 0x7f) << 14) | ((data[8] & 0x7f) << 7) | (data[9] & 0x7f)
-                data = data[10 + size:]
-            if len(data) >= 128 and data[-128:-125] == b'TAG':
+                tag_total = 10 + size + (10 if has_footer else 0)
+                data = data[tag_total:]
+            # Strip ID3v1 tags
+            while len(data) >= 128 and data[-128:-125] == b'TAG':
                 data = data[:-128]
+            # Strip APE tags
+            while len(data) >= 32 and data[-32:-24] == b'APETAGEX':
+                data = data[:-32]
+
             with open(clean_path, "wb") as f:
                 f.write(data)
             return str(clean_path.resolve())
@@ -248,6 +272,12 @@ class BotWorker(QThread):
 
         # 1. Verify token
         try:
+            if self.network_manager:
+                try:
+                    session.proxies = self.network_manager.get_requests_proxies()
+                except ConnectionAbortedError as e:
+                    self.status_changed.emit(self.bot_id, False, f"Bağlantı Hatası: {str(e)}")
+                    return
             me_resp = session.get(f"https://api.telegram.org/bot{self.token}/getMe", timeout=10)
             me_data = me_resp.json()
             if not me_data.get("ok"):
@@ -259,6 +289,11 @@ class BotWorker(QThread):
                     conn.cursor().execute("UPDATE bots SET username = ? WHERE id = ?", (username, self.bot_id))
                     conn.commit()
             self.status_changed.emit(self.bot_id, True, f"@{username}")
+        except requests.exceptions.ProxyError as e:
+            if self.network_manager and self.network_manager.kill_switch:
+                self.network_manager.trigger_kill_switch(f"Token doğrulamada proxy koptu: {e}")
+            self.status_changed.emit(self.bot_id, False, f"Bağlantı Hatası: {str(e)}")
+            return
         except Exception as e:
             self.status_changed.emit(self.bot_id, False, f"Bağlantı Hatası: {str(e)}")
             return
@@ -267,9 +302,15 @@ class BotWorker(QThread):
         offset = 0
         while self.is_running:
             if self.network_manager and self.network_manager.is_frozen:
-                self.msleep(300)
+                self.msleep(200)
                 continue
             try:
+                if self.network_manager:
+                    try:
+                        session.proxies = self.network_manager.get_requests_proxies()
+                    except ConnectionAbortedError:
+                        self.msleep(200)
+                        continue
                 params = {"timeout": 20, "offset": offset}
                 resp = session.get(f"https://api.telegram.org/bot{self.token}/getUpdates", params=params, timeout=25)
                 data = resp.json()
@@ -287,6 +328,11 @@ class BotWorker(QThread):
 
             except requests.exceptions.Timeout:
                 continue
+            except (requests.exceptions.ProxyError, requests.exceptions.SSLError) as e:
+                if self.network_manager and self.network_manager.kill_switch:
+                    self.network_manager.trigger_kill_switch(f"Polling sırasında proxy koptu: {e}")
+                if self.is_running:
+                    self.msleep(1000)
             except requests.exceptions.RequestException:
                 if self.is_running:
                     self.msleep(3000)

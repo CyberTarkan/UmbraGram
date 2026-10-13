@@ -267,6 +267,10 @@ class MasterPasswordSetupDialog(QDialog):
         self.accept()
 
 
+# Alias for backwards compatibility / user journey interface
+MasterPasswordDialog = MasterPasswordSetupDialog
+
+
 class MasterPasswordUnlockDialog(QDialog):
     """Unlock modal on startup if database vault is encrypted."""
     def __init__(self, sec_mgr: DatabaseSecurityManager, parent=None):

@@ -226,12 +226,20 @@ SLANG_AND_SHORTHAND_MAP: Dict[str, str] = {
     "nreye": "nereye",
     "nrd": "nerede",
     "nerde": "nerede",
+    "nerdesin": "neredesin",
+    "nerdesiniz": "neredesiniz",
     "nerden": "nereden",
     "burda": "burada",
+    "burdayım": "buradayım",
+    "burdasın": "buradasın",
+    "burdayız": "buradayız",
     "burdan": "buradan",
     "şurda": "şurada",
     "surda": "şurada",
+    "şurdayım": "şuradayım",
     "orda": "orada",
+    "ordayım": "oradayım",
+    "ordasın": "oradasın",
     "ordan": "oradan",
     "içerde": "içeride",
     "icerde": "içeride",
@@ -288,18 +296,38 @@ SLANG_AND_SHORTHAND_MAP: Dict[str, str] = {
     # Question & intent contractions
     "napıyon": "ne yapıyorsun",
     "napiyon": "ne yapıyorsun",
+    "napıon": "ne yapıyorsun",
+    "napion": "ne yapıyorsun",
     "napıyosun": "ne yapıyorsun",
     "napiyosun": "ne yapıyorsun",
-    "napion": "ne yapıyorsun",
     "napıosun": "ne yapıyorsun",
+    "napiosun": "ne yapıyorsun",
     "napıyo": "ne yapıyor",
     "napiyo": "ne yapıyor",
+    "napıo": "ne yapıyor",
+    "napio": "ne yapıyor",
     "napıyom": "ne yapıyorum",
     "napiyom": "ne yapıyorum",
+    "napıom": "ne yapıyorum",
+    "napiom": "ne yapıyorum",
     "napıyoz": "ne yapıyoruz",
     "napiyoz": "ne yapıyoruz",
+    "napıoz": "ne yapıyoruz",
+    "napioz": "ne yapıyoruz",
     "napıyonuz": "ne yapıyorsunuz",
     "napiyonuz": "ne yapıyorsunuz",
+    "napıonuz": "ne yapıyorsunuz",
+    "napionuz": "ne yapıyorsunuz",
+    "napıolar": "ne yapıyorlar",
+    "napiolar": "ne yapıyorlar",
+    "nabıyon": "ne yapıyorsun",
+    "nabion": "ne yapıyorsun",
+    "nabıon": "ne yapıyorsun",
+    "nabıyo": "ne yapıyor",
+    "nabio": "ne yapıyor",
+    "nabıo": "ne yapıyor",
+    "nörüyon": "ne yapıyorsun",
+    "nörüyonuz": "ne yapıyorsunuz",
     "napcan": "ne yapacaksın",
     "napıcan": "ne yapacaksın",
     "napcanız": "ne yapacaksınız",
@@ -315,6 +343,14 @@ SLANG_AND_SHORTHAND_MAP: Dict[str, str] = {
     "nolcak": "ne olacak",
     "nolucak": "ne olacak",
     "nolcaz": "ne olacağız",
+    "dicem": "diyeceğim",
+    "diycem": "diyeceğim",
+    "dicen": "diyeceksin",
+    "diycen": "diyeceksin",
+    "dicek": "diyecek",
+    "diycek": "diyecek",
+    "dicez": "diyeceğiz",
+    "diycez": "diyeceğiz",
 
     # Present continuous contractions (-yom, -yon, -yo, -yoz, -yolar)
     "geliyom": "geliyorum",
@@ -454,6 +490,12 @@ SLANG_AND_SHORTHAND_MAP: Dict[str, str] = {
     "atıyom": "atıyorum",
     "buluyom": "buluyorum",
     "bulamıyo": "bulamıyor",
+    "bulamıyor": "bulamıyor",
+    "bulamıyom": "bulamıyorum",
+    "bulamiom": "bulamıyorum",
+    "bulamıyon": "bulamıyorsun",
+    "bulamiyon": "bulamıyorsun",
+    "bulamıyoz": "bulamıyoruz",
     "yapamıyo": "yapamıyor",
     "gelemiyo": "gelemiyor",
     "gidemiyo": "gidemiyor",
@@ -571,7 +613,7 @@ ALWAYS_VOCATIVE_WORDS: Set[str] = {
     "aga", "agam", "agacım",
     "lan", "len", "ulan", "ula",
     "olum", "oğlum", "oglum", "olm",
-    "kirve", "bilader", "birader", "kardeş", "kardes",
+    "kirve", "kirvem", "bilader", "birader", "kardeş", "kardes",
 }
 
 # Contextual address words (may also be valid nouns in non-address contexts)
@@ -599,6 +641,7 @@ ADDRESS_NEUTRAL_MAP: Dict[str, str] = {
     "birader": "arkadaşım",
     "bilader": "arkadaşım",
     "kirve": "arkadaşım",
+    "kirvem": "arkadaşım",
     "olum": "arkadaşım",
     "oğlum": "arkadaşım",
     "olm": "arkadaşım",
@@ -687,7 +730,10 @@ PROFANITY_WORD_MAP: Dict[str, str] = {
     "yavsak": "güvenilmez kimse",
     "puşt": "kötü niyetli kimse",
     "pust": "kötü niyetli kimse",
+    "puştluk": "kötü niyetlilik",
+    "pustluk": "kötü niyetlilik",
     "ibne": "güvenilmez kimse",
+    "ibnelik": "güvenilmezlik",
     "göt": "arka",
     "götveren": "kötü niyetli kişi",
     "götlek": "korkak kimse",
@@ -821,6 +867,11 @@ class TextNeutralizer:
         voc_regex = r"(?<!\w)(" + "|".join(re.escape(k) for k in sorted_vocatives) + r")(?!\w)"
         self._vocative_pattern = re.compile(voc_regex, re.IGNORECASE)
 
+        # 5. Elongated stem pattern for known stems (including double letters like tamamm, lütfeen)
+        sorted_stems = sorted(ELONGATED_STEM_MAP.keys(), key=len, reverse=True)
+        stem_regex = r"(?<!\w)(" + "|".join(re.escape(k) for k in sorted_stems) + r")(?!\w)"
+        self._elongated_stem_pattern = re.compile(stem_regex, re.IGNORECASE)
+
     # -----------------------------------------------------------------------
     # 1. Karakter Uzatma Temizleyici (Character Elongation)
     # -----------------------------------------------------------------------
@@ -834,6 +885,17 @@ class TextNeutralizer:
         """
         if not text:
             return ""
+
+        def _stem_repl(match: re.Match) -> str:
+            word = match.group(0)
+            rep = ELONGATED_STEM_MAP.get(tr_lower(word), word)
+            if word.isupper() and len(word) > 1:
+                return tr_upper(rep)
+            elif word[0].isupper():
+                return tr_capitalize(rep)
+            return rep
+
+        text = self._elongated_stem_pattern.sub(_stem_repl, text)
 
         def _reduce_word(match: re.Match) -> str:
             word = match.group(0)
@@ -1137,6 +1199,34 @@ class TextNeutralizer:
     def normalize_sentence_casing(cls, text: str) -> str:
         return cls().normalize_casing(text)
 
+    URL_PATTERN = re.compile(r"(?:https?://|www\.)[^\s<>\"]+", re.IGNORECASE)
+
+    @classmethod
+    def mask_urls(cls, text: str) -> Tuple[str, List[str]]:
+        """Extracts and masks URLs with placeholders to protect them from distortion."""
+        urls: List[str] = []
+
+        def _repl(match: re.Match) -> str:
+            raw_url = match.group(0)
+            trailing_punct = ""
+            while raw_url and raw_url[-1] in ".,;:!?)]}":
+                trailing_punct = raw_url[-1] + trailing_punct
+                raw_url = raw_url[:-1]
+            urls.append(raw_url)
+            token = f"__UMBRA_URL_TOKEN_{len(urls)-1}__"
+            return token + trailing_punct
+
+        masked = cls.URL_PATTERN.sub(_repl, text)
+        return masked, urls
+
+    @classmethod
+    def restore_urls(cls, text: str, urls: List[str]) -> str:
+        """Restores previously masked URLs back to their exact original forms."""
+        for idx, url in enumerate(urls):
+            token_pattern = rf"__UMBRA_URL_TOKEN_{idx}__"
+            text = re.sub(token_pattern, lambda _: url, text, flags=re.IGNORECASE)
+        return text
+
     # -----------------------------------------------------------------------
     # 7. Ana Nötrleme Fonksiyonu (Master Neutralize Pipeline)
     # -----------------------------------------------------------------------
@@ -1151,6 +1241,9 @@ class TextNeutralizer:
 
         if not text or not text.strip():
             return ""
+
+        # Step 0: Mask URLs to protect them from alteration
+        text, preserved_urls = self.mask_urls(text)
 
         # Step 1: Character elongations
         if self.clean_elongations:
@@ -1179,6 +1272,10 @@ class TextNeutralizer:
         # Step 7: Sentence casing normalization
         if self.normalize_case:
             text = self.normalize_casing(text)
+
+        # Step 8: Restore preserved URLs
+        if preserved_urls:
+            text = self.restore_urls(text, preserved_urls)
 
         return text.strip()
 

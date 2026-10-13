@@ -6,18 +6,41 @@ from pathlib import Path
 DB_PATH = "bot_system.db"
 VAULT_CONFIG_FILE = "security.vault"
 
+class _ConnectionContext:
+    """Context wrapper for SQLite connections to auto-commit and auto-close connections."""
+    def __init__(self, conn: sqlite3.Connection):
+        self._conn = conn
+
+    def __enter__(self) -> sqlite3.Connection:
+        self._conn.__enter__()
+        return self._conn
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            self._conn.__exit__(exc_type, exc_val, exc_tb)
+        finally:
+            self._conn.close()
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+
 class DatabaseManager:
     def __init__(self, db_path=DB_PATH):
         self.db_path = db_path
         self.init_db()
 
     def get_connection(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=60.0)
         conn.row_factory = sqlite3.Row
-        return conn
+        conn.execute("PRAGMA busy_timeout = 60000;")
+        return _ConnectionContext(conn)
 
     def init_db(self):
         with self.get_connection() as conn:
+            conn.execute("PRAGMA journal_mode = WAL;")
+            conn.execute("PRAGMA synchronous = NORMAL;")
+            conn.execute("PRAGMA busy_timeout = 60000;")
             cursor = conn.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS bots (
@@ -486,6 +509,15 @@ class DatabaseSecurityManager:
             return False
         from cryptography.fernet import Fernet
         try:
+            # Checkpoint WAL if it exists to ensure main database file contains all committed data
+            try:
+                chk_conn = sqlite3.connect(self.db_path, timeout=5.0)
+                try:
+                    chk_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+                finally:
+                    chk_conn.close()
+            except Exception:
+                pass
             with open(self.db_path, "rb") as f:
                 plain_data = f.read()
             enc_data = Fernet(self._derived_key).encrypt(plain_data)

@@ -1,4 +1,5 @@
 import time
+import threading
 from collections import defaultdict, deque
 
 class SpamProtector:
@@ -15,6 +16,7 @@ class SpamProtector:
         self.max_media = max_media
         self.media_window_seconds = media_window_seconds
         self.enabled = enabled
+        self._lock = threading.RLock()
 
         # Store recent event timestamps per (bot_id, chat_id)
         self.message_history = defaultdict(deque)
@@ -34,39 +36,40 @@ class SpamProtector:
         if not self.enabled:
             return False, False, ""
 
-        now = time.time()
-        key = (bot_id, chat_id)
+        with self._lock:
+            now = time.time()
+            key = (bot_id, chat_id)
 
-        # 0. Check active temporary cooldown
-        if key in self.mute_until:
-            remaining = int(self.mute_until[key] - now)
-            if remaining > 0:
-                # Still in cooldown
-                return True, False, f"Kullanıcı geçici molada ({remaining} sn kaldı)"
-            else:
-                # Cooldown expired
-                del self.mute_until[key]
+            # 0. Check active temporary cooldown
+            if key in self.mute_until:
+                remaining = int(self.mute_until[key] - now)
+                if remaining > 0:
+                    # Still in cooldown
+                    return True, False, f"Kullanıcı geçici molada ({remaining} sn kaldı)"
+                else:
+                    # Cooldown expired
+                    del self.mute_until[key]
 
-        # 1. Clean old message timestamps
-        msg_q = self.message_history[key]
-        while msg_q and now - msg_q[0] > self.window_seconds:
-            msg_q.popleft()
-
-        msg_q.append(now)
-        if len(msg_q) > self.max_messages:
-            return self._apply_violation(key, f"Hızlı mesaj gönderimi ({len(msg_q)} mesaj / {self.window_seconds} sn)")
-
-        # 2. Check media spam (with Album / Media Group awareness)
-        if is_media:
-            # If part of an album already tracked within 4 seconds, don't double count
+            # 1. Album / Media Group awareness
             is_new_album_or_item = True
-            if media_group_id:
+            if is_media and media_group_id:
                 last_grp, last_ts = self.last_media_group.get(key, (None, 0))
                 if last_grp == media_group_id and (now - last_ts < 4.0):
                     is_new_album_or_item = False
                 self.last_media_group[key] = (media_group_id, now)
 
+            # 2. Clean and track message timestamps (subsequent items in same album don't inflate message flood counter)
             if is_new_album_or_item:
+                msg_q = self.message_history[key]
+                while msg_q and now - msg_q[0] > self.window_seconds:
+                    msg_q.popleft()
+
+                msg_q.append(now)
+                if len(msg_q) > self.max_messages:
+                    return self._apply_violation(key, f"Hızlı mesaj gönderimi ({len(msg_q)} mesaj / {self.window_seconds} sn)")
+
+            # 3. Check media spam (with Album / Media Group awareness)
+            if is_media and is_new_album_or_item:
                 media_q = self.media_history[key]
                 while media_q and now - media_q[0] > self.media_window_seconds:
                     media_q.popleft()
@@ -100,10 +103,11 @@ class SpamProtector:
             return True, True, f"Tekrarlanan spam nedeniyle kalıcı engellendi ({reason})"
 
     def reset_user(self, bot_id: int, chat_id: int):
-        key = (bot_id, chat_id)
-        self.message_history.pop(key, None)
-        self.media_history.pop(key, None)
-        self.text_history.pop(key, None)
-        self.last_media_group.pop(key, None)
-        self.mute_until.pop(key, None)
-        self.violation_count.pop(key, None)
+        with self._lock:
+            key = (bot_id, chat_id)
+            self.message_history.pop(key, None)
+            self.media_history.pop(key, None)
+            self.text_history.pop(key, None)
+            self.last_media_group.pop(key, None)
+            self.mute_until.pop(key, None)
+            self.violation_count.pop(key, None)
