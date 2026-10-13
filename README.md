@@ -1,4 +1,4 @@
-# AnonimTelegram
+# UmbraGram
 
 <p align="center">
   <a href="#english">English</a> •
@@ -17,7 +17,7 @@
 <a name="english"></a>
 ## English
 
-**AnonimTelegram** is a security-hardened, privacy-centric desktop Telegram bot workstation built with Python and PyQt6. Designed for research in operational privacy, network traffic obfuscation, and anti-forensics, it combines network layer isolation with hardware-aware data sanitization and linguistic stylometry defense.
+**UmbraGram** is a security-hardened, privacy-centric desktop Telegram bot workstation built with Python and PyQt6. Designed for research in operational privacy, network traffic obfuscation, and anti-forensics, it combines network layer isolation with hardware-aware data sanitization and linguistic stylometry defense.
 
 ### Key Features
 
@@ -51,7 +51,7 @@
 ### Project Structure
 
 ```
-AnonimTelegram/
+UmbraGram/
 ├── main.py                   # PyQt6 desktop application & UI entrypoint
 ├── network_manager.py        # Tor controller, proxy pool & packet jitter
 ├── text_neutralizer.py       # Linguistic stylometry neutralization engine
@@ -68,8 +68,8 @@ AnonimTelegram/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/CyberTarkan/AnonimTelegram.git
-   cd AnonimTelegram
+   git clone https://github.com/CyberTarkan/UmbraGram.git
+   cd UmbraGram
    ```
 
 2. **Create and activate a virtual environment:**
@@ -104,7 +104,7 @@ pytest tests/ -v
 <a name="türkçe"></a>
 ## Türkçe
 
-**AnonimTelegram**, Python ve PyQt6 ile geliştirilmiş, güvenlik ve mahremiyet odaklı masaüstü Telegram bot istemcisidir. Operasyonel gizlilik, ağ trafiğini gizleme ve adli bilişime karşı koyma (anti-forensics) araştırmaları için tasarlanmış olup; ağ katmanı izolasyonunu, donanıma duyarlı veri imhasını ve dilbilimsel stilometri (üslup) savunmasını tek çatı altında birleştirir.
+**UmbraGram**, Python ve PyQt6 ile geliştirilmiş, güvenlik ve mahremiyet odaklı masaüstü Telegram bot istemcisidir. Operasyonel gizlilik, ağ trafiğini gizleme ve adli bilişime karşı koyma (anti-forensics) araştırmaları için tasarlanmış olup; ağ katmanı izolasyonunu, donanıma duyarlı veri imhasını ve dilbilimsel stilometri (üslup) savunmasını tek çatı altında birleştirir.
 
 ### Temel Özellikler
 
@@ -138,7 +138,7 @@ pytest tests/ -v
 ### Proje Yapısı
 
 ```
-AnonimTelegram/
+UmbraGram/
 ├── main.py                   # PyQt6 masaüstü uygulaması ve arayüz
 ├── network_manager.py        # Tor kontrolcüsü, proxy havuzu ve jitter
 ├── text_neutralizer.py       # Kural tabanlı stilometri nötralizasyon motoru
@@ -155,8 +155,8 @@ AnonimTelegram/
 
 1. **Depoyu klonlayın:**
    ```bash
-   git clone https://github.com/CyberTarkan/AnonimTelegram.git
-   cd AnonimTelegram
+   git clone https://github.com/CyberTarkan/UmbraGram.git
+   cd UmbraGram
    ```
 
 2. **Sanal ortam oluşturun ve aktif edin:**

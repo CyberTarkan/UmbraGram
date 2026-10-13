@@ -54,7 +54,7 @@ def secure_shred_file(file_path: Path, drive_type: Optional[str] = None) -> bool
       The SSD method applies:
       1. Single-pass high-entropy random overwrite (wipes accessible logical blocks without wearing NAND).
       2. Zero-byte truncation (f.truncate(0)) which triggers the NTFS/Windows TRIM advisory to deallocate blocks.
-      3. Crypto-shredding: Since data in AnonimTelegram is AES-256 encrypted, shredding the keys/headers
+      3. Crypto-shredding: Since data in UmbraGram is AES-256 encrypted, shredding the keys/headers
          renders wear-leveled NAND remnants mathematically impossible to decrypt.
     """
     try:

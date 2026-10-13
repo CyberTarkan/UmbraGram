@@ -1,6 +1,6 @@
 # Anonim İletişim ve Operasyonel Güvenlik (OpSec) Rehberi
 
-Bu belge, `AnonimTelegram` istemcisi kullanılırken adli bilişim, ağ izleme ve servis sağlayıcı seviyesindeki tehdit modellerine karşı tam anonimliği korumak için uyulması gereken temel ilkeleri içerir.
+Bu belge, `UmbraGram` istemcisi kullanılırken adli bilişim, ağ izleme ve servis sağlayıcı seviyesindeki tehdit modellerine karşı tam anonimliği korumak için uyulması gereken temel ilkeleri içerir.
 
 ---
 

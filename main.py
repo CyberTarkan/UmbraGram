@@ -187,7 +187,7 @@ class MasterPasswordSetupDialog(QDialog):
     """First-time master password setup dialog to encrypt the local database with AES-256."""
     def __init__(self, sec_mgr: DatabaseSecurityManager, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Anonim Telegram - Güvenlik Anahtarı Belirleme")
+        self.setWindowTitle("UmbraGram - Güvenlik Anahtarı Belirleme")
         self.setFixedSize(460, 320)
         self.sec_mgr = sec_mgr
 
@@ -271,7 +271,7 @@ class MasterPasswordUnlockDialog(QDialog):
     """Unlock modal on startup if database vault is encrypted."""
     def __init__(self, sec_mgr: DatabaseSecurityManager, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Anonim Telegram - Kilitli Veritabanı")
+        self.setWindowTitle("UmbraGram - Kilitli Veritabanı")
         self.setFixedSize(380, 200)
         self.sec_mgr = sec_mgr
 
@@ -327,7 +327,7 @@ class NetworkShieldStartupDialog(QDialog):
     """
     def __init__(self, net_mgr: NetworkShieldManager, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Anonim Telegram - Ağ Güvenlik Kalkanı")
+        self.setWindowTitle("UmbraGram - Ağ Güvenlik Kalkanı")
         self.setFixedSize(540, 580)
         self.net_mgr = net_mgr
         self.init_ui()
@@ -2778,7 +2778,7 @@ class ChatInputEdit(QTextEdit):
 class MainWindow(QMainWindow):
     def __init__(self, net_manager=None, db_manager=None):
         super().__init__()
-        self.setWindowTitle("Anonim Telegram")
+        self.setWindowTitle("UmbraGram")
         self.resize(1180, 760)
         self.setMinimumSize(880, 600)
         self.setAcceptDrops(True)
@@ -2848,7 +2848,7 @@ class MainWindow(QMainWindow):
         brand_icon.setFont(QFont("Segoe UI Emoji", 13))
         top_layout.addWidget(brand_icon)
 
-        brand_title = QLabel("Anonim Telegram")
+        brand_title = QLabel("UmbraGram")
         brand_title.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
         brand_title.setStyleSheet("color: #ffffff; margin-right: 4px;")
         top_layout.addWidget(brand_title)

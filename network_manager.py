@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional, Dict, List, Tuple
 import requests
 
-logger = logging.getLogger("AnonimTelegram.NetworkManager")
+logger = logging.getLogger("UmbraGram.NetworkManager")
 
 
 class ShieldMode:
