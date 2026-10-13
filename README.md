@@ -48,7 +48,7 @@ UmbraGram is a security-hardened desktop messaging client that allows you to cha
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/CyberTarkan/UmbraGram.git
+   git clone https://github.com/tarkan0x/UmbraGram.git
    cd UmbraGram
    ```
 
@@ -61,7 +61,7 @@ UmbraGram is a security-hardened desktop messaging client that allows you to cha
    ```bash
    python main.py
    ```
-   *(Or download the pre-compiled `UmbraGram.exe` from [Releases](https://github.com/CyberTarkan/UmbraGram/releases))*
+   *(Or download the pre-compiled `UmbraGram.exe` from [Releases](https://github.com/tarkan0x/UmbraGram/releases))*
 
 ---
 
@@ -113,7 +113,7 @@ UmbraGram, kişisel telefon numaranızı, gerçek kimliğinizi, IP adresinizi ve
 
 1. **Depoyu klonlayın:**
    ```bash
-   git clone https://github.com/CyberTarkan/UmbraGram.git
+   git clone https://github.com/tarkan0x/UmbraGram.git
    cd UmbraGram
    ```
 
@@ -126,7 +126,7 @@ UmbraGram, kişisel telefon numaranızı, gerçek kimliğinizi, IP adresinizi ve
    ```bash
    python main.py
    ```
-   *(Veya [Releases](https://github.com/CyberTarkan/UmbraGram/releases) bölümünden doğrudan `UmbraGram.exe` dosyasını indirin)*
+   *(Veya [Releases](https://github.com/tarkan0x/UmbraGram/releases) bölümünden doğrudan `UmbraGram.exe` dosyasını indirin)*
 
 ---
 
